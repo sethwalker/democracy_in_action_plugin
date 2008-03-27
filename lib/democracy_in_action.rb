@@ -2,10 +2,15 @@
 module DemocracyInAction
   class << self
     def configure
-      yield config if block_given?
+      yield self if block_given?
     end
-    def config
-      DemocracyInAction::Config.instance
+
+    def auth
+      DemocracyInAction::Auth
+    end
+
+    def mirroring
+      DemocracyInAction::Mirroring
     end
   end
 end

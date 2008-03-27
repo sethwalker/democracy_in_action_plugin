@@ -11,9 +11,14 @@ describe DemocracyInAction do
     it "should not require a block" do
       lambda { DemocracyInAction.configure }.should_not raise_error
     end
-    it "should yield a DemocracyInAction::Config instance" do
+    it "the block variable should respond to auth" do
       DemocracyInAction.configure do |c|
-        c.should be_a_kind_of(DemocracyInAction::Config)
+        lambda { c.auth}.should_not raise_error
+      end
+    end
+    it "the block variable should respond to mirroring" do
+      DemocracyInAction.configure do |c|
+        lambda { c.mirroring }.should_not raise_error
       end
     end
   end
