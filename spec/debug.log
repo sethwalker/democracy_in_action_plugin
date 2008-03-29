@@ -1,1 +1,29 @@
 # Logfile created on Thu Mar 27 06:31:14 +0000 2008 by /
+  [4;36;1mSQL (0.000195)[0m   [0;1mselect sqlite_version(*)[0m
+  [4;35;1mSQL (0.000000)[0m   [0mSQLite3::SQLException: no such table: users: DROP TABLE users[0m
+  [4;36;1mSQL (0.074292)[0m   [0;1mCREATE TABLE users ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "name" varchar(255) DEFAULT NULL) [0m
+  [4;35;1mSQL (0.000000)[0m   [0mSQLite3::SQLException: table schema_info already exists: CREATE TABLE schema_info (version integer)[0m
+  [4;36;1mSQL (0.002709)[0m   [0;1mUPDATE schema_info SET version = 1[0m
+  [4;36;1mSQL (0.000214)[0m   [0;1mselect sqlite_version(*)[0m
+  [4;35;1mSQL (0.000000)[0m   [0mSQLite3::SQLException: no such table: users: DROP TABLE users[0m
+  [4;36;1mSQL (0.003409)[0m   [0;1mCREATE TABLE users ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "name" varchar(255) DEFAULT NULL) [0m
+  [4;35;1mSQL (0.002469)[0m   [0mCREATE TABLE schema_info (version integer)[0m
+  [4;36;1mSQL (0.002228)[0m   [0;1mINSERT INTO schema_info (version) VALUES(0)[0m
+  [4;35;1mSQL (0.002476)[0m   [0mUPDATE schema_info SET version = 1[0m
+  [4;36;1mSQL (0.000210)[0m   [0;1mselect sqlite_version(*)[0m
+  [4;35;1mSQL (0.003676)[0m   [0mDROP TABLE users[0m
+  [4;36;1mSQL (0.002782)[0m   [0;1mCREATE TABLE users ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "name" varchar(255) DEFAULT NULL) [0m
+  [4;35;1mSQL (0.000000)[0m   [0mSQLite3::SQLException: table schema_info already exists: CREATE TABLE schema_info (version integer)[0m
+  [4;36;1mSQL (0.002198)[0m   [0;1mUPDATE schema_info SET version = 1[0m
+  [4;36;1mSQL (0.000203)[0m   [0;1mselect sqlite_version(*)[0m
+  [4;35;1mSQL (0.003846)[0m   [0mDROP TABLE users[0m
+  [4;36;1mSQL (0.002893)[0m   [0;1mCREATE TABLE users ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "name" varchar(255) DEFAULT NULL) [0m
+  [4;35;1mSQL (0.000000)[0m   [0mSQLite3::SQLException: table schema_info already exists: CREATE TABLE schema_info (version integer)[0m
+  [4;36;1mSQL (0.004696)[0m   [0;1mUPDATE schema_info SET version = 1[0m
+  [4;35;1mUser Create (0.000310)[0m   [0mINSERT INTO users ("name") VALUES(NULL)[0m
+  [4;36;1mSQL (0.000197)[0m   [0;1mselect sqlite_version(*)[0m
+  [4;35;1mSQL (0.003771)[0m   [0mDROP TABLE users[0m
+  [4;36;1mSQL (0.002712)[0m   [0;1mCREATE TABLE users ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "name" varchar(255) DEFAULT NULL) [0m
+  [4;35;1mSQL (0.000000)[0m   [0mSQLite3::SQLException: table schema_info already exists: CREATE TABLE schema_info (version integer)[0m
+  [4;36;1mSQL (0.003245)[0m   [0;1mUPDATE schema_info SET version = 1[0m
+  [4;35;1mUser Create (0.000303)[0m   [0mINSERT INTO users ("name") VALUES(NULL)[0m

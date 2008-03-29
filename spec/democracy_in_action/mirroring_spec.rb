@@ -2,7 +2,8 @@ require File.dirname(__FILE__) + '/../spec_helper'
 
 describe DemocracyInAction::Mirroring do
   before do
-    User = mock('user_class')
+    Object.remove_class User if Object.const_defined?(:User)
+    ::User = Class.new(ActiveRecord::Base)
   end
   def act!
     DemocracyInAction.configure do |c|
@@ -12,5 +13,17 @@ describe DemocracyInAction::Mirroring do
   it "should set up observers" do
     DemocracyInAction::Mirroring.should_receive(:mirror).with('supporter', User)
     act!
+  end
+  describe "mirror method" do
+    it "should set up after_save on the model" do
+      User.should_receive(:after_save).with(DemocracyInAction::Mirroring::ActiveRecord)
+      DemocracyInAction::Mirroring.mirror('supporter', User)
+    end
+    it "should receive the after save call" do
+      act!
+      user = User.new
+      DemocracyInAction::Mirroring::ActiveRecord.should_receive(:after_save).with(user)
+      user.save
+    end
   end
 end
