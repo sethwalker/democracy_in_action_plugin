@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/../spec_helper'
 
-describe DemocracyInAction::Mirroring do
+describe DemocracyInAction::Auth do
   before do
     User = mock('user_class')
   end
@@ -13,5 +13,6 @@ describe DemocracyInAction::Mirroring do
   end
   it "should set the username" do
     act!
+    DemocracyInAction.auth.username.should == 'user'
   end
 end

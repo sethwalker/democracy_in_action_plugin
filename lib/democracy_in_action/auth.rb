@@ -1,12 +1,5 @@
 module DemocracyInAction
   class Auth
-    class << self
-      def username=(username)
-      end
-      def password=(password)
-      end
-      def org_key=(key)
-      end
-    end
+    cattr_accessor :username, :password, :org_key
   end
 end
