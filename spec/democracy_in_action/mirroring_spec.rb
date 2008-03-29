@@ -4,6 +4,8 @@ describe DemocracyInAction::Mirroring do
   before do
     Object.remove_class User if Object.const_defined?(:User)
     ::User = Class.new(ActiveRecord::Base)
+    auth_config = File.dirname(__FILE__) + '/../auth.yml'
+    @auth = YAML::load(IO.read(auth_config)) if File.exist?(auth_config)
   end
   def act!
     DemocracyInAction.configure do |c|
@@ -23,6 +25,11 @@ describe DemocracyInAction::Mirroring do
       act!
       user = User.new
       DemocracyInAction::Mirroring::ActiveRecord.should_receive(:after_save).with(user)
+      user.save
+    end
+    it "should not die" do
+      act!
+      user = User.new
       user.save
     end
   end

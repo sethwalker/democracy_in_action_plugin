@@ -12,6 +12,7 @@ module DemocracyInAction
     end
     module ActiveRecord
       def self.after_save(model)
+        api = DemocracyInAction::API.new
       end
     end
   end

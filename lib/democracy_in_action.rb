@@ -1,4 +1,5 @@
-# DemocracyInAction
+require File.join(File.dirname(__FILE__), '..', 'vendor', 'democracy_in_action', 'lib', 'democracyinaction.rb')
+
 module DemocracyInAction
   class << self
     def configure
