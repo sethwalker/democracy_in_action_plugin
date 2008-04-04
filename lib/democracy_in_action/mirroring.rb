@@ -25,6 +25,7 @@ module DemocracyInAction
       def self.included(base)
         base.class_eval do
           after_save :update_democracy_in_action
+          has_one :democracy_in_action_proxy, :as => :local
         end
       end
 
