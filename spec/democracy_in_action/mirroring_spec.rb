@@ -18,7 +18,8 @@ describe DemocracyInAction::Mirroring do
   end
   describe "mirror method" do
     it "should set up after_save on the model" do
-      User.should_receive(:after_save)
+      User.stub!(:after_save)
+      User.should_receive(:after_save).with(:update_democracy_in_action).once
       DemocracyInAction::Mirroring.mirror('supporter', User)
     end
     it "should receive the after save call" do

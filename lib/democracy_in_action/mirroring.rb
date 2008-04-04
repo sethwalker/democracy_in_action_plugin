@@ -25,7 +25,7 @@ module DemocracyInAction
       def self.included(base)
         base.class_eval do
           after_save :update_democracy_in_action
-          has_one :democracy_in_action_proxy, :as => :local
+          has_one :democracy_in_action_proxy, :as => :local, :class_name => 'DemocracyInAction::Proxy'
         end
       end
 
@@ -38,7 +38,7 @@ module DemocracyInAction
         #denormalized ftw?
         if attributes.keys.include?(:democracy_in_action_key)
           read_attribute(:democracy_in_action_key)
-        elsif respond_to?(:democracy_in_action_proxy)
+        elsif respond_to?(:democracy_in_action_proxy) && democracy_in_action_proxy
           democracy_in_action_proxy.remote_key
         end
       end
