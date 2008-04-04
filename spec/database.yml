@@ -3,7 +3,7 @@ sqlite:
   :dbfile: democracy_in_action.sqlite.db
 sqlite3:
   :adapter: sqlite3
-  :dbfile: democracy_in_action.sqlite3.db
+  :dbfile: ":memory:"
 postgresql:
   :adapter: postgresql
   :username: postgres

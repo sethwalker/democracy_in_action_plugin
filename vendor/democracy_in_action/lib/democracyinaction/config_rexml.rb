@@ -19,9 +19,12 @@ _close_match = /^\s*<\/(#{_name_str})\s*>/um
 _identity = /^([!\*\w\-]+)(\s+#{_ncname_str})?(\s+["'].*?['"])?(\s+['"].*?["'])?/u
 
 # and now change all the constants (this will produce warnings!)
+saved_verbosity = $-v
+$-v = nil
 REXML::Parsers::BaseParser.const_set("NCNAME_STR", _ncname_str)
 REXML::Parsers::BaseParser.const_set("NAME_STR", _name_str)
 REXML::Parsers::BaseParser.const_set("ATTRIBUTE_PATTERN", _attribute_pattern)
 REXML::Parsers::BaseParser.const_set("TAG_MATCH", _tag_match)
 REXML::Parsers::BaseParser.const_set("CLOSE_MATCH", _close_match)
 REXML::Parsers::BaseParser.const_set("IDENTITY", _identity)
+$-v = saved_verbosity

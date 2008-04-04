@@ -2,6 +2,7 @@ require File.dirname(__FILE__) + '/../spec_helper'
 
 describe DemocracyInAction::Auth do
   before do
+    Object.remove_class User if Object.const_defined?(:User)
     User = mock('user_class')
   end
   def act!
