@@ -12,9 +12,6 @@ module DemocracyInAction
         fields['key'] = key if key
 
         model.democracy_in_action_key = DemocracyInAction::Mirroring.api.process democracy_in_action.table.name, fields
-
-#        api.describe 'supporter'
-#        self.democracy_in_action_key = api.process
       end
 
       def self.after_destroy(model)

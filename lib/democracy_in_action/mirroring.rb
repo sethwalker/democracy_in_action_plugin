@@ -24,7 +24,7 @@ module DemocracyInAction
         @mappings = {}
 
         raise 'no table given' if table.to_s.empty?
-        @table = DemocracyInAction::Tables.const_get(table.to_s.capitalize).new
+        @table = DemocracyInAction::Tables.const_get(table.to_s.gsub(/(^|_)(.)/) { $2.upcase }).new
 
         instance_eval(&block) if block_given?
 
