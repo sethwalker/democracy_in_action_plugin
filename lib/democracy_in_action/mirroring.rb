@@ -11,12 +11,18 @@ module DemocracyInAction
       end
 
       # save to DemocracyInAction table with attributes of model
-      def mirror(table, model)
+      def mirror(table, model, &block)
         if block_given?
           configurator = OpenStruct.new
-          yield configurator
+          configurator.instance_eval do
+            def map(field, &block)
+              self.send "#{field}=", block
+            end
+          end
+          configurator.instance_eval(&block)
         end
         model.__send__ :include, DemocracyInAction::Mirroring::ActiveRecord unless model.included_modules.include?(DemocracyInAction::Mirroring::ActiveRecord)
+        model.democracy_in_action_remote_table = table
       end
     end
 
@@ -24,14 +30,37 @@ module DemocracyInAction
 
       def self.included(base)
         base.class_eval do
+          cattr_accessor :democracy_in_action_remote_table
           after_save :update_democracy_in_action
           has_one :democracy_in_action_proxy, :as => :local, :class_name => 'DemocracyInAction::Proxy'
+          
         end
       end
 
+      def self.map_defaults(attributes)
+        attributes.inject({}) do |defaults, (key, value)|
+          key = key.to_s.titleize.gsub(' ', '_')
+          defaults[key] = value if key == 'First_Name'
+          defaults
+        end
+      end
+
+      def self.democracy_in_action_api
+        auth = DemocracyInAction::Auth
+        DemocracyInAction::API.new 'authCodes' => [auth.username, auth.password, auth.org_key]
+      end
+
+
+      # instance methods added to model:
       def update_democracy_in_action
         key = democracy_in_action_key
-        api = DemocracyInAction::API.new
+
+        fields = map_defaults(attributes)
+
+        self.democracy_in_action_key = democracy_in_action_api.process democracy_in_action_remote_table, fields
+
+#        api.describe 'supporter'
+#        self.democracy_in_action_key = api.process
       end
 
       def democracy_in_action_key
@@ -43,6 +72,19 @@ module DemocracyInAction
         end
       end
 
+      def democracy_in_action_key=(key)
+        if attributes.keys.include?(:democracy_in_action_key)
+          write_attribute(:democracy_in_action_key, key)
+        elsif respond_to?(:democracy_in_action_proxy)
+          if democracy_in_action_proxy
+            democracy_in_action_proxy.update_attribute(:remote_key, key)
+          else
+            create_democracy_in_action_proxy(:remote_key => key, :remote_table => 'what?')
+          end
+        else
+          raise "can't save DemocracyInAction key"
+        end
+      end
     end
   end
 end
