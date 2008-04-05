@@ -1,6 +1,7 @@
 module DemocracyInAction
   module Tables
     class Event
+      include DemocracyInAction::Tables::Attributes
       @@columns = [
         "event_KEY",
         "organization_KEY",
