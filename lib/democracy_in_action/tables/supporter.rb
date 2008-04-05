@@ -2,6 +2,16 @@ module DemocracyInAction
   module Tables
     class Supporter
       include DemocracyInAction::Tables::Attributes
+
+      #override cattr_accessor
+      def columns
+        @@columns - @@protected
+      end
+
+      @@protected = [
+        "Password"
+      ]
+
       @@columns = [
         "supporter_KEY",
         "organization_KEY",

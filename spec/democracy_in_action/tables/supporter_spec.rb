@@ -13,4 +13,7 @@ describe DemocracyInAction::Tables::Supporter do
     event = DemocracyInAction::Tables::Event.new
     supporter.columns.should include('First_Name')
   end
+  it "should not include Password in columns" do
+    @supporter.columns.should_not include('Password')
+  end
 end
