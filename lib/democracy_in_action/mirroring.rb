@@ -33,7 +33,8 @@ module DemocracyInAction
           include DemocracyInAction::Mirroring::ActiveRecord
           cattr_accessor :democracy_in_action
           after_save DemocracyInAction::Mirroring::ActiveRecord
-          has_one :democracy_in_action_proxy, :as => :local, :class_name => 'DemocracyInAction::Proxy'
+          after_destroy DemocracyInAction::Mirroring::ActiveRecord
+          has_one :democracy_in_action_proxy, :as => :local, :class_name => 'DemocracyInAction::Proxy', :dependent => :destroy
         end unless model.included_modules.include?(DemocracyInAction::Mirroring::ActiveRecord)
         model.democracy_in_action = self
       end

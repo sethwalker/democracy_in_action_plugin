@@ -17,6 +17,11 @@ module DemocracyInAction
 #        self.democracy_in_action_key = api.process
       end
 
+      def self.after_destroy(model)
+        key = model.democracy_in_action_key
+        DemocracyInAction::Mirroring.api.delete model.democracy_in_action.table.name, {'key' => key}
+      end
+
       def democracy_in_action_key
         #denormalized ftw?
         if attributes.keys.include?(:democracy_in_action_key)

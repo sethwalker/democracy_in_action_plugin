@@ -5,8 +5,6 @@ DemocracyInAction::API::DIA_ENABLED = false
 describe DemocracyInAction::Mirroring do
 
   before do
-    auth_config = File.dirname(__FILE__) + '/../auth.yml'
-    @auth = YAML::load(IO.read(auth_config)) if File.exist?(auth_config)
     Object.remove_class User if Object.const_defined?(:User)
     class User < ActiveRecord::Base; end
   end
@@ -59,6 +57,86 @@ describe DemocracyInAction::Mirroring do
       end
       u = User.new :name => 'dweezil'
       User.democracy_in_action.mappings(u)['First_Name'].should == 'moon unit'
+    end
+
+    if ENV['DIA_USER'] && ENV['DIA_PASS'] && ENV['DIA_ORG']
+      describe "WITH A CONNECTION TO DIA!!!  to org key:#{ENV['DIA_ORG']}" do
+        before do
+          DemocracyInAction.configure {
+            auth.username = ENV['DIA_USER']
+            auth.password = ENV['DIA_PASS']
+            auth.org_key  = ENV['DIA_ORG']
+          }
+        end
+        before(:all) do
+          DemocracyInAction::API::DIA_ENABLED = true
+        end
+
+        after do
+          DemocracyInAction.configure {
+            auth.username = auth.password = auth.org_key = nil
+          }
+        end
+        after(:all) do
+          DemocracyInAction::API::DIA_ENABLED = false
+        end
+
+        describe "when saving" do
+          it "should save values" do
+            Object.remove_class User if Object.const_defined?(:User)
+            class User < ActiveRecord::Base; end
+            DemocracyInAction.configure do
+              mirror(:supporter, User) do
+                map('First_Name', 'alfred')
+                map('Last_Name') {|user| user.name}
+              end
+            end
+            @user = User.new :name => 'hitchcock'
+            @user.save
+            attrs = DemocracyInAction::Mirroring.api.get('supporter', @user.democracy_in_action_key).first
+            attrs['First_Name'].should == 'alfred'
+            attrs['Last_Name'].should == 'hitchcock'
+          end
+        end
+        describe "when updating" do
+          it "should update values" do
+            Object.remove_class User if Object.const_defined?(:User)
+            class User < ActiveRecord::Base; end
+            DemocracyInAction.configure do
+              mirror(:supporter, User) do
+                map('First_Name', 'albert')
+                map('Last_Name') {|user| user.name}
+              end
+            end
+            @user = User.new :name => 'einstein'
+            @user.save
+            attrs = DemocracyInAction::Mirroring.api.get('supporter', @user.democracy_in_action_key).first
+            attrs['Last_Name'].should == 'einstein'
+            @user.update_attributes(:name => 'camus')
+            attrs = DemocracyInAction::Mirroring.api.get('supporter', @user.democracy_in_action_key).first
+            attrs['Last_Name'].should == 'camus'
+
+          end
+        end
+        describe "when destroying" do
+          it "should destroy the record" do
+            Object.remove_class User if Object.const_defined?(:User)
+            class User < ActiveRecord::Base; end
+            DemocracyInAction.configure do
+              mirror(:supporter, User) do
+                map('First_Name', 'albert')
+                map('Last_Name') {|user| user.name}
+              end
+            end
+            @user = User.new :name => 'einstein'
+            @user.save
+            DemocracyInAction::Mirroring.api.get('supporter', @user.democracy_in_action_key).should_not be_empty
+            @user.destroy
+
+            DemocracyInAction::Mirroring.api.get('supporter', @user.democracy_in_action_key).should be_empty
+          end
+        end
+      end
     end
   end
 
