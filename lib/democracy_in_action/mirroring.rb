@@ -43,7 +43,8 @@ module DemocracyInAction
         return {} unless @mappings[table.name]
         @mappings[table.name].inject({}) do |fields, (field, map)|
           if map.is_a?(Proc)
-            fields[field] = map.call(model)
+            value = map.call(model)
+            fields[field] = value if value
           else
             fields[field] = map
           end
