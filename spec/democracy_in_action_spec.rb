@@ -15,7 +15,7 @@ describe DemocracyInAction do
       lambda { DemocracyInAction.configure { auth } }.should_not raise_error
     end
     it "the mirror method should be exposed in the block" do
-      lambda { DemocracyInAction.configure { mirror } }.should_not raise_error
+      lambda { DemocracyInAction.configure { mirror(:supporter, User) } }.should_not raise_error
     end
   end
 end

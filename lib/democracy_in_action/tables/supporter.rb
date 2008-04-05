@@ -1,6 +1,7 @@
 module DemocracyInAction
   module Tables
     class Supporter
+      include DemocracyInAction::Tables::Attributes
       @@columns = [
         "supporter_KEY",
         "organization_KEY",

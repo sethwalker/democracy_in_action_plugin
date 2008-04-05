@@ -12,13 +12,13 @@ module DemocracyInAction
 
     def mirror(table=nil, model=nil, &block)
       #mirror(:groups, Group) {|g| g.parent_KEY = 1234}
-      if table && model
-        DemocracyInAction::Mirroring.mirror(table, model, &block)
+      DemocracyInAction::Mirroring.mirror(table, model, &block)
 
       #mirror.supporter = User
-      else
-        DemocracyInAction::Mirroring
-      end
+        #mirror(User => 'supporter')
+#      else
+#        DemocracyInAction::Mirroring
+#      end
     end
   end
 end

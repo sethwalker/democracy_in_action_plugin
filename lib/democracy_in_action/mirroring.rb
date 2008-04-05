@@ -1,90 +1,71 @@
-require 'ostruct'
+# note:
+# possible to have a multiple mirrorings per class?  model.democracy_in_action[key].mappings
 module DemocracyInAction
-  class Mirroring
+  module Mirroring
 
-    class << self
-      def method_missing(method, *args)
-        # c.mirroring.supporter = User => mirror('supporter', User)
-        if method.to_s =~ /\=$/
-          mirror(method.to_s.chomp('='), args.first)
-        end
-      end
-
-      # save to DemocracyInAction table with attributes of model
-      def mirror(table, model, &block)
-        if block_given?
-          configurator = OpenStruct.new
-          configurator.instance_eval do
-            def map(field, &block)
-              self.send "#{field}=", block
-            end
-          end
-          configurator.instance_eval(&block)
-        end
-        model.__send__ :include, DemocracyInAction::Mirroring::ActiveRecord unless model.included_modules.include?(DemocracyInAction::Mirroring::ActiveRecord)
-        model.democracy_in_action_remote_table = table
-      end
+    def self.auth
+      DemocracyInAction::Auth
     end
 
-    module ActiveRecord
+    def self.api
+      @@api ||= DemocracyInAction::API.new 'authCodes' => [auth.username, auth.password, auth.org_key]
+    end
 
-      def self.included(base)
-        base.class_eval do
-          cattr_accessor :democracy_in_action_remote_table
-          after_save :update_democracy_in_action
+    def self.mirror(table, model, &block)
+      Mirror.new(table, model, &block)
+    end
+
+    class Mirror
+      attr_reader :mappings, :table
+
+      def initialize(table, model, &block)
+        return if model.respond_to?(:democracy_in_action) && model.democracy_in_action#only one for now
+
+        @mappings = {}
+
+        raise 'no table given' if table.to_s.empty?
+        @table = DemocracyInAction::Tables.const_get(table.to_s.capitalize).new
+
+        instance_eval(&block) if block_given?
+
+        model.class_eval do
+          require 'democracy_in_action/mirroring/active_record' #to avoid a warning
+          include DemocracyInAction::Mirroring::ActiveRecord
+          cattr_accessor :democracy_in_action
+          after_save DemocracyInAction::Mirroring::ActiveRecord
           has_one :democracy_in_action_proxy, :as => :local, :class_name => 'DemocracyInAction::Proxy'
-          
+        end unless model.included_modules.include?(DemocracyInAction::Mirroring::ActiveRecord)
+        model.democracy_in_action = self
+      end
+
+      # returns a hash of 'Democracy_In_Action_Column_Name' => value
+      def mappings(model)
+        return {} unless @mappings[table.name]
+        @mappings[table.name].inject({}) do |fields, (field, map)|
+          if map.is_a?(Proc)
+            fields[field] = map.call(model)
+          else
+            fields[field] = map
+          end
+          fields
         end
       end
 
-      def self.map_defaults(attributes)
+      def map(column, value=nil, &block)
+        @mappings[table.name] ||= {}
+        @mappings[table.name][column] = block if block_given?
+        @mappings[table.name][column] = value if value
+        @mappings[table.name][column]
+      end
+
+      def defaults(attributes)
         attributes.inject({}) do |defaults, (key, value)|
           key = key.to_s.titleize.gsub(' ', '_')
-          defaults[key] = value if key == 'First_Name'
+          defaults[key] = value if table.columns.include?(key)
           defaults
         end
       end
 
-      def self.democracy_in_action_api
-        auth = DemocracyInAction::Auth
-        DemocracyInAction::API.new 'authCodes' => [auth.username, auth.password, auth.org_key]
-      end
-
-
-      # instance methods added to model:
-      def update_democracy_in_action
-        key = democracy_in_action_key
-
-        fields = map_defaults(attributes)
-
-        self.democracy_in_action_key = democracy_in_action_api.process democracy_in_action_remote_table, fields
-
-#        api.describe 'supporter'
-#        self.democracy_in_action_key = api.process
-      end
-
-      def democracy_in_action_key
-        #denormalized ftw?
-        if attributes.keys.include?(:democracy_in_action_key)
-          read_attribute(:democracy_in_action_key)
-        elsif respond_to?(:democracy_in_action_proxy) && democracy_in_action_proxy
-          democracy_in_action_proxy.remote_key
-        end
-      end
-
-      def democracy_in_action_key=(key)
-        if attributes.keys.include?(:democracy_in_action_key)
-          write_attribute(:democracy_in_action_key, key)
-        elsif respond_to?(:democracy_in_action_proxy)
-          if democracy_in_action_proxy
-            democracy_in_action_proxy.update_attribute(:remote_key, key)
-          else
-            create_democracy_in_action_proxy(:remote_key => key, :remote_table => 'what?')
-          end
-        else
-          raise "can't save DemocracyInAction key"
-        end
-      end
     end
   end
 end

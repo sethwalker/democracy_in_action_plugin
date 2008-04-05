@@ -14,3 +14,8 @@ ActiveRecord::Migration.suppress_messages do
   load(plugin_spec_dir + "/../generators/democracy_in_action_migration/templates/install_democracy_in_action.rb")
   InstallDemocracyInAction.up
 end
+
+
+Object.remove_class User if Object.const_defined?(:User)
+class User < ActiveRecord::Base
+end
