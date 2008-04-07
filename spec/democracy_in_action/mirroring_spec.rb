@@ -1,7 +1,5 @@
 require File.dirname(__FILE__) + '/../spec_helper'
 
-DemocracyInAction::API::DIA_ENABLED = false
-
 describe "DemocracyInAction::Mirroring" do
 
   before do
@@ -71,7 +69,7 @@ describe "DemocracyInAction::Mirroring" do
           }
         end
         before(:all) do
-          DemocracyInAction::API::DIA_ENABLED = true
+          DemocracyInAction::API.stub!(:disabled?).and_return(false)
         end
 
         after do
@@ -80,7 +78,7 @@ describe "DemocracyInAction::Mirroring" do
           }
         end
         after(:all) do
-          DemocracyInAction::API::DIA_ENABLED = false
+          DemocracyInAction::API.stub!(:disabled?).and_return(true)
         end
 
         describe "when saving" do
@@ -95,7 +93,7 @@ describe "DemocracyInAction::Mirroring" do
             end
             @user = User.new :name => 'hitchcock'
             @user.save
-            attrs = DemocracyInAction::Mirroring.api.get('supporter', @user.democracy_in_action_key).first
+            attrs = DemocracyInAction::Mirroring.api.get('supporter', @user.democracy_in_action_proxies.find_by_remote_table('supporter').remote_key).first
             attrs['First_Name'].should == 'alfred'
             attrs['Last_Name'].should == 'hitchcock'
           end
@@ -112,10 +110,10 @@ describe "DemocracyInAction::Mirroring" do
             end
             @user = User.new :name => 'einstein'
             @user.save
-            attrs = DemocracyInAction::Mirroring.api.get('supporter', @user.democracy_in_action_key).first
+            attrs = DemocracyInAction::Mirroring.api.get('supporter', @user.democracy_in_action_proxies.find_by_remote_table('supporter').remote_key).first
             attrs['Last_Name'].should == 'einstein'
             @user.update_attributes(:name => 'camus')
-            attrs = DemocracyInAction::Mirroring.api.get('supporter', @user.democracy_in_action_key).first
+            attrs = DemocracyInAction::Mirroring.api.get('supporter', @user.democracy_in_action_proxies.find_by_remote_table('supporter').remote_key).first
             attrs['Last_Name'].should == 'camus'
 
           end
@@ -132,10 +130,11 @@ describe "DemocracyInAction::Mirroring" do
             end
             @user = User.new :name => 'einstein'
             @user.save
-            DemocracyInAction::Mirroring.api.get('supporter', @user.democracy_in_action_key).should_not be_empty
+            proxy = @user.democracy_in_action_proxies.find_by_remote_table('supporter')
+            DemocracyInAction::Mirroring.api.get('supporter', proxy.remote_key).should_not be_empty
             @user.destroy
 
-            DemocracyInAction::Mirroring.api.get('supporter', @user.democracy_in_action_key).should be_empty
+            DemocracyInAction::Mirroring.api.get('supporter', proxy.remote_key).should be_empty
           end
         end
       end

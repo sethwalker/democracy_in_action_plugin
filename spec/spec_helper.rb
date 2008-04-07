@@ -19,3 +19,5 @@ end
 Object.remove_class User if Object.const_defined?(:User)
 class User < ActiveRecord::Base
 end
+
+DemocracyInAction::API.stub!(:disabled?).and_return(true)

@@ -211,12 +211,14 @@ module DemocracyInAction
       body = tmp.join('&')
     end
 
+    def self.disabled?
+      false
+    end
+
     # specialized code to handle multiple form entries with same key name
     # also does some error handling
     def sendRequest(my_url, options, redirects = 5)
-      if not DIA_ENABLED
-        return ''
-      end
+      return '' if API.disabled?
             
       # make a HTTP post and set the cookies
       url = URI.parse(my_url)
