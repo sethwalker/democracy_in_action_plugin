@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/../../spec_helper'
 
-describe DemocracyInAction::Tables::Supporter do
+describe "DemocracyInAction::Tables::Supporter" do
   before do
     @supporter = DemocracyInAction::Tables::Supporter.new
   end

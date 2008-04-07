@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/../spec_helper'
 
-describe DemocracyInAction::Auth do
+describe "DemocracyInAction::Auth" do
   def act!
     DemocracyInAction.configure do |c|
       c.auth.username = 'user'

@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/spec_helper'
 
-describe DemocracyInAction do
+describe "DemocracyInAction" do
   it "should respond to configure" do
     DemocracyInAction.should respond_to(:configure)
   end

@@ -2,7 +2,7 @@ require File.dirname(__FILE__) + '/../spec_helper'
 
 DemocracyInAction::API::DIA_ENABLED = false
 
-describe DemocracyInAction::Mirroring do
+describe "DemocracyInAction::Mirroring" do
 
   before do
     Object.remove_class User if Object.const_defined?(:User)
