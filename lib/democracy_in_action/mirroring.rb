@@ -34,8 +34,7 @@ module DemocracyInAction
 
       # returns a hash of 'Democracy_In_Action_Column_Name' => value
       def mappings(model)
-        return {} unless @mappings[table.name]
-        @mappings[table.name].inject({}) do |fields, (field, map)|
+        @mappings.inject({}) do |fields, (field, map)|
           if map.is_a?(Proc)
             value = map.call(model)
             fields[field] = value if value
@@ -48,10 +47,9 @@ module DemocracyInAction
       end
 
       def map(column, value=nil, &block)
-        @mappings[table.name] ||= {}
-        @mappings[table.name][column] = block if block_given?
-        @mappings[table.name][column] = value if value
-        @mappings[table.name][column]
+        @mappings[column] = block if block_given?
+        @mappings[column] = value if value
+        @mappings[column]
       end
 
       def defaults(attributes)
