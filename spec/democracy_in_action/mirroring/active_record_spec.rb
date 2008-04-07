@@ -15,7 +15,7 @@ describe "DemocracyInAction::Mirroring::ActiveRecord" do
       end
     end
     u = User.new :name => 'barack'
-    u.democracy_in_action_proxy = DemocracyInAction::Proxy.create :remote_key => 1234
+    u.democracy_in_action_proxies.build :remote_table => 'supporter', :remote_key => 1234
     DemocracyInAction::Mirroring.stub!(:api).and_return(api = stub('api'))
     api.should_receive(:process).with('supporter', {'key' => 1234, 'First_Name' => 'barack'})
     u.save

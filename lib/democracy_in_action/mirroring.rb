@@ -11,6 +11,7 @@ module DemocracyInAction
       @@api ||= DemocracyInAction::API.new 'authCodes' => [auth.username, auth.password, auth.org_key]
     end
 
+    # can currently do more than one table per model, as long as all of the tables are unique
     def self.mirror(table, model, &block)
       Mirror.new(table, model, &block)
     end
@@ -19,8 +20,6 @@ module DemocracyInAction
       attr_reader :mappings, :table
 
       def initialize(table, model, &block)
-        return if model.respond_to?(:democracy_in_action) && model.democracy_in_action#only one for now
-
         @mappings = {}
 
         raise 'no table given' if table.to_s.empty?
@@ -28,15 +27,9 @@ module DemocracyInAction
 
         instance_eval(&block) if block_given?
 
-        model.class_eval do
-          require 'democracy_in_action/mirroring/active_record' #to avoid a warning
-          include DemocracyInAction::Mirroring::ActiveRecord
-          cattr_accessor :democracy_in_action
-          after_save DemocracyInAction::Mirroring::ActiveRecord
-          after_destroy DemocracyInAction::Mirroring::ActiveRecord
-          has_one :democracy_in_action_proxy, :as => :local, :class_name => 'DemocracyInAction::Proxy', :dependent => :destroy
-        end unless model.included_modules.include?(DemocracyInAction::Mirroring::ActiveRecord)
-        model.democracy_in_action = self
+        require 'democracy_in_action/mirroring/active_record' #to avoid a warning
+        model.__send__ :include, DemocracyInAction::Mirroring::ActiveRecord unless model.included_modules.include?(DemocracyInAction::Mirroring::ActiveRecord)
+        model.democracy_in_action.mirrors << self
       end
 
       # returns a hash of 'Democracy_In_Action_Column_Name' => value
@@ -46,6 +39,7 @@ module DemocracyInAction
           if map.is_a?(Proc)
             value = map.call(model)
             fields[field] = value if value
+#            fields[field] = value unless (value.respond_to?(:empty?) ? value.empty? : !value) #blank?
           else
             fields[field] = map
           end

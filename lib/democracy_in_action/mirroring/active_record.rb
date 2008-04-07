@@ -1,44 +1,29 @@
 module DemocracyInAction
   module Mirroring
     module ActiveRecord
-      def self.after_save(model)
-        democracy_in_action = model.democracy_in_action
 
-        fields = democracy_in_action.defaults(model.attributes)
-
-        fields.merge!(democracy_in_action.mappings(model))
-
-        key = model.democracy_in_action_key
-        fields['key'] = key if key
-
-        model.democracy_in_action_key = DemocracyInAction::Mirroring.api.process democracy_in_action.table.name, fields
-      end
-
-      def self.after_destroy(model)
-        key = model.democracy_in_action_key
-        DemocracyInAction::Mirroring.api.delete model.democracy_in_action.table.name, {'key' => key}
-      end
-
-      def democracy_in_action_key
-        #denormalized ftw?
-        if attributes.keys.include?(:democracy_in_action_key)
-          read_attribute(:democracy_in_action_key)
-        elsif respond_to?(:democracy_in_action_proxy) && democracy_in_action_proxy
-          democracy_in_action_proxy.remote_key
+      def self.included(base)
+        base.class_eval do
+          cattr_accessor :democracy_in_action
+          after_save DemocracyInAction::Mirroring::ActiveRecord
+          has_many :democracy_in_action_proxies, :as => :local, :class_name => 'DemocracyInAction::Proxy', :dependent => :destroy
         end
+        require 'ostruct'
+        base.democracy_in_action = OpenStruct.new({:mirrors => []})
       end
 
-      def democracy_in_action_key=(key)
-        if attributes.keys.include?(:democracy_in_action_key)
-          write_attribute(:democracy_in_action_key, key)
-        elsif respond_to?(:democracy_in_action_proxy)
-          if democracy_in_action_proxy
-            democracy_in_action_proxy.update_attribute(:remote_key, key)
-          else
-            create_democracy_in_action_proxy(:remote_key => key, :remote_table => 'what?')
-          end
-        else
-          raise "can't save DemocracyInAction key"
+      def self.after_save(model)
+        mirrors = model.class.democracy_in_action.mirrors
+#        mirrors = self.democracy_in_action.mirrors #isn't this included?
+        mirrors.each do |mirror|
+          fields = mirror.defaults(model.attributes)
+          fields.merge!(mirror.mappings(model))
+
+          proxy = model.democracy_in_action_proxies.find_or_initialize_by_remote_table(mirror.table.name)
+          fields['key'] = proxy.remote_key if proxy && proxy.remote_key
+
+          proxy.remote_key = DemocracyInAction::Mirroring.api.process mirror.table.name, fields
+          proxy.save if proxy.new_record?
         end
       end
     end

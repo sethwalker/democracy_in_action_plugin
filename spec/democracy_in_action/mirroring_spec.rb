@@ -42,21 +42,23 @@ describe "DemocracyInAction::Mirroring" do
     end
 
     it "should remember the map" do
-      User.democracy_in_action = nil if User.respond_to?(:democracy_in_action)
-      DemocracyInAction::Mirroring.mirror(:supporter, User) do
+      User.democracy_in_action.mirrors = [] if User.respond_to?(:democracy_in_action)
+      mirror = DemocracyInAction::Mirroring.mirror(:supporter, User) do
         map('First_Name') {|user| user.name }
       end
       u = User.new :name => 'dweezil'
-      User.democracy_in_action.mappings(u)['First_Name'].should == 'dweezil'
+      User.democracy_in_action.mirrors.first.mappings(u)['First_Name'].should == 'dweezil'
+      # or:
+      mirror.mappings(u)['First_Name'].should == 'dweezil'
     end
 
     it "should also be able to set static values" do
-      User.democracy_in_action = nil if User.respond_to?(:democracy_in_action)
+      User.democracy_in_action.mirrors = [] if User.respond_to?(:democracy_in_action)
       DemocracyInAction::Mirroring.mirror(:supporter, User) do
         map('First_Name', 'moon unit')
       end
       u = User.new :name => 'dweezil'
-      User.democracy_in_action.mappings(u)['First_Name'].should == 'moon unit'
+      User.democracy_in_action.mirrors.first.mappings(u)['First_Name'].should == 'moon unit'
     end
 
     if ENV['DIA_USER'] && ENV['DIA_PASS'] && ENV['DIA_ORG']
