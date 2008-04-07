@@ -20,6 +20,7 @@ module DemocracyInAction
       attr_reader :mappings, :table
 
       def initialize(table, model, &block)
+        @guard = nil
         @mappings = {}
 
         raise 'no table given' if table.to_s.empty?
@@ -44,6 +45,11 @@ module DemocracyInAction
           end
           fields
         end
+      end
+
+      def guard(&block)
+        @guard = block if block_given?
+        @guard
       end
 
       def map(column, value=nil, &block)

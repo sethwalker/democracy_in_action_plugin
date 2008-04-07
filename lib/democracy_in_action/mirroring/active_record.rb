@@ -16,6 +16,7 @@ module DemocracyInAction
         mirrors = model.class.democracy_in_action.mirrors
 #        mirrors = self.democracy_in_action.mirrors #isn't this included?
         mirrors.each do |mirror|
+          next unless mirror.guard.call(model) if mirror.guard
           fields = mirror.defaults(model.attributes)
           fields.merge!(mirror.mappings(model))
 
