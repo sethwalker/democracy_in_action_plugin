@@ -91,13 +91,13 @@ module DemocracyInAction
       if (options['desc'])
         # the description is a different format and needs a different parser
         listener = DIA_Desc_Listener.new
-        parser = Parsers::StreamParser.new(res.body, listener)
+        parser = Parsers::StreamParser.new(res, listener)
         parser.parse
         return listener.result
       else
         # everything else has the same db format
         listener = DIA_Get_Listener.new
-        parser = Parsers::StreamParser.new(res.body, listener)
+        parser = Parsers::StreamParser.new(res, listener)
         parser.parse
         if (options['count'])
           return listener.count
@@ -123,7 +123,7 @@ module DemocracyInAction
 
       # i think the result is always a number (id) surrounded
       # by too much whitespace
-      return res.body.strip
+      return res.strip
     end
 
     # delete code
@@ -142,10 +142,10 @@ module DemocracyInAction
       res = sendRequest(@urls['delete'], criteria)
     
       # if it contains '<success', it worked, otherwise a failure
-      if res.body.include?('<success')
+      if res.include?('<success')
         return true
       else
-        puts res.body if $DEBUG
+        puts res if $DEBUG
         return false
       end
     end
@@ -215,7 +215,7 @@ module DemocracyInAction
     # also does some error handling
     def sendRequest(my_url, options, redirects = 5)
       if not DIA_ENABLED
-        return Net::HTTP.new( 'www.radicaldesigns.org', 80 ).start {|http| http.request( Net::HTTP::Get.new('/'))}
+        return ''
       end
             
       # make a HTTP post and set the cookies
@@ -258,7 +258,7 @@ module DemocracyInAction
           res.error!
       end
     
-      return res
+      return res.body
     end
 
   end
