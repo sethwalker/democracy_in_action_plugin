@@ -1,6 +1,7 @@
 class InstallDemocracyInAction < ActiveRecord::Migration
   def self.up
     create_table :democracy_in_action_proxies do |t|
+      t.string  :name
       t.integer :local_id
       t.string  :local_type
       t.integer :remote_key
